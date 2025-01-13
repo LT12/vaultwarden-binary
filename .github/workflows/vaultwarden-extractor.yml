@@ -73,13 +73,13 @@ jobs:
       - name: Zip extracted files
         run: |
           cd extracted-${{ matrix.arch }}
-          zip -r ../vaultwarden-linux-${{ matrix.arch }}-extracted.zip vaultwarden web-vault
+          tar -czvf ../vaultwarden-linux-${{ matrix.arch }}-extracted.tar.gz vaultwarden web-vault
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: vaultwarden-linux-${{ matrix.arch }}-extracted
-          path: vaultwarden-linux-${{ matrix.arch }}-extracted.zip
+          path: vaultwarden-linux-${{ matrix.arch }}-extracted.tar.gz
 
   create-release:
     needs: [check-and-prepare, extract-and-release]
@@ -167,7 +167,7 @@ jobs:
         if: steps.check_asset.outputs.exists == 'false'
         run: |
           cd extracted-${{ matrix.arch }}
-          zip -r ../vaultwarden-linux-${{ matrix.arch }}-extracted.zip vaultwarden web-vault
+          tar -czvf ../vaultwarden-linux-${{ matrix.arch }}-extracted.tar.gz vaultwarden web-vault
 
       - name: Upload Release Asset
         if: steps.check_asset.outputs.exists == 'false'
