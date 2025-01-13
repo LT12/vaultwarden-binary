@@ -107,7 +107,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for arch in amd64 arm64 armv7 armv6; do
+          for arch in amd64; do
             asset_path="vaultwarden-linux-${arch}-extracted/vaultwarden-linux-${arch}-extracted.zip"
             asset_name="vaultwarden-linux-${arch}-extracted.zip"
             curl -L \
