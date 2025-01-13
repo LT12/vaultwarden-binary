@@ -70,7 +70,7 @@ jobs:
           docker cp $CONTAINER_ID:/web-vault extracted-${{ matrix.arch }}/
           docker rm $CONTAINER_ID
 
-      - name: Zip extracted files
+      - name: Archive extracted files
         run: |
           cd extracted-${{ matrix.arch }}
           tar -czvf ../vaultwarden-linux-${{ matrix.arch }}-extracted.tar.gz vaultwarden web-vault
@@ -108,13 +108,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for arch in amd64; do
-            asset_path="vaultwarden-linux-${arch}-extracted/vaultwarden-linux-${arch}-extracted.zip"
-            asset_name="vaultwarden-linux-${arch}-extracted.zip"
+            asset_path="vaultwarden-linux-${arch}-extracted/vaultwarden-linux-${arch}-extracted.tar.gz"
+            asset_name="vaultwarden-linux-${arch}-extracted.tar.gz"
             curl -L \
               -X POST \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: application/zip" \
+              -H "Content-Type: application/gzip" \
               -T "${asset_path}" \
               "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=${asset_name}"
           done
@@ -132,7 +132,7 @@ jobs:
       - name: Check if asset exists
         id: check_asset
         run: |
-          ASSET_NAME="vaultwarden-linux-${{ matrix.arch }}-extracted.zip"
+          ASSET_NAME="vaultwarden-linux-${{ matrix.arch }}-extracted.tar.gz"
           ASSET_EXISTS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/${{ needs.check-and-prepare.outputs.release_id }}/assets?name=${ASSET_NAME})
           if [ "$ASSET_EXISTS" = "200" ]; then
             echo "Asset already exists, skipping extraction and upload"
@@ -163,7 +163,7 @@ jobs:
           docker cp $CONTAINER_ID:/web-vault extracted-${{ matrix.arch }}/
           docker rm $CONTAINER_ID
 
-      - name: Zip extracted files
+      - name: Archive extracted files
         if: steps.check_asset.outputs.exists == 'false'
         run: |
           cd extracted-${{ matrix.arch }}
@@ -178,6 +178,6 @@ jobs:
             -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/zip" \
-            -T "vaultwarden-linux-${{ matrix.arch }}-extracted.zip" \
-            "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.check-and-prepare.outputs.release_id }}/assets?name=vaultwarden-linux-${{ matrix.arch }}-extracted.zip"
+            -H "Content-Type: application/gzip" \
+            -T "vaultwarden-linux-${{ matrix.arch }}-extracted.tar.gz" \
+            "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.check-and-prepare.outputs.release_id }}/assets?name=vaultwarden-linux-${{ matrix.arch }}-extracted.tar.gz"
